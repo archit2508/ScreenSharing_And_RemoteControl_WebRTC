@@ -7,8 +7,6 @@ class PaytmAccessibilityService : AccessibilityService() {
 
     companion object {
 
-        var isEnabled = false
-
         private lateinit var accessibilityService: PaytmAccessibilityService
 
         fun getAccessibilityInstance() = accessibilityService
@@ -19,17 +17,11 @@ class PaytmAccessibilityService : AccessibilityService() {
     override fun onServiceConnected() {
         super.onServiceConnected()
 
-        isEnabled = true
         accessibilityService = this
     }
 
     override fun onInterrupt() {}
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {}
-
-    override fun onDestroy() {
-        super.onDestroy()
-        isEnabled = false
-    }
 
 }
