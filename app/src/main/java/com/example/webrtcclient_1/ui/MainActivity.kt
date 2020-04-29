@@ -7,6 +7,7 @@ import android.media.projection.MediaProjection
 import android.media.projection.MediaProjectionManager
 import android.os.Bundle
 import android.provider.Settings
+import android.text.TextUtils
 import android.util.Base64
 import android.util.DisplayMetrics
 import android.util.Log
@@ -117,8 +118,53 @@ class MainActivity : AppCompatActivity(), SignallingClient.SignalingInterface {
         }
     }
 
+    private fun isAccessibilityEnabled(): Boolean {
+        var accessibilityEnabled = 0
+        val accessibilityFound = false
+        try {
+            accessibilityEnabled = Settings.Secure.getInt(
+                this.contentResolver,
+                Settings.Secure.ACCESSIBILITY_ENABLED
+            )
+            Log.d("sahil", "ACCESSIBILITY: $accessibilityEnabled")
+        } catch (e: Settings.SettingNotFoundException) {
+            Log.d("sahil", "Error finding setting, default accessibility to not found: " + e.message)
+        }
+        val mStringColonSplitter = TextUtils.SimpleStringSplitter(':')
+        if (accessibilityEnabled == 1) {
+            Log.d("sahil", "***ACCESSIBILIY IS ENABLED***: ")
+            val settingValue = Settings.Secure.getString(
+                contentResolver,
+                Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
+            )
+            Log.d("sahil", "Setting: $settingValue")
+            if (settingValue != null) {
+                mStringColonSplitter.setString(settingValue)
+                while (mStringColonSplitter.hasNext()) {
+                    val accessabilityService = mStringColonSplitter.next()
+                    Log.d("sahil", "Setting: $accessabilityService")
+                    if (accessabilityService.equals(
+                            "com.example.webrtcclient_1/com.example.webrtcclient_1.acessibility.PaytmAccessibilityService",
+                            ignoreCase = true
+                        )
+                    ) {
+                        Log.d(
+                            "sahil",
+                            "We've found the correct setting - accessibility is switched on!"
+                        )
+                        return true
+                    }
+                }
+            }
+            Log.d("sahil", "***END***")
+        } else {
+            Log.d("sahil", "***ACCESSIBILIY IS DISABLED***")
+        }
+        return accessibilityFound
+    }
+
     private fun checkForAccessibility() {
-        if(PaytmAccessibilityService.isEnabled) {
+        if(isAccessibilityEnabled()) {
             initiateScreenSharingProcess()
         } else {
             startSettingsActivity()
