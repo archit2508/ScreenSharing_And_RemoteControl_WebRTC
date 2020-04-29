@@ -1,0 +1,2 @@
+rootProject.name='WebRtcClient-1'
+include ':app'
